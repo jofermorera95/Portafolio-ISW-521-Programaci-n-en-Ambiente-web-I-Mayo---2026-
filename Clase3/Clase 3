@@ -1,0 +1,119 @@
+Pregunta 1
+
+Query: se cae un servidor y se reinicia la maquina... en que tipo de situacion sería correcto reiniciar la VM completamente?
+
+IA Answer: Reiniciar completamente una Máquina Virtual (VM) tras una caída inesperada es el paso adecuado cuando el sistema operativo invitado no responde (cuelgue total o kernel panic), el hipervisor pierde la conexión con el almacenamiento, o si necesitas forzar la liberación de recursos bloqueados.Un reinicio completo (duro) desde la consola del hipervisor es correcto y necesario en las siguientes situaciones:1. Sistema Operativo Inaccesible (Freeze o Kernel Panic)El escenario: La VM no responde a pings, las interfaces de red están caídas y no puedes acceder por SSH o Escritorio Remoto. El monitor del hipervisor muestra un pantallazo azul (Windows) o un volcado de kernel (Linux) congelado.Por qué es necesario: Los servicios de virtualización internos de la VM están caídos. Un reinicio en caliente (soft reset) no funcionará porque el sistema operativo ya no tiene el control.2. Pérdida de conectividad con el almacenamiento (Datastore inaccesible)El escenario: El almacenamiento compartido o el disco local falló temporalmente, provocando que el hipervisor ponga la VM en estado de "pausa" o "solo lectura" (Read-Only).Por qué es necesario: Al restaurar la conexión del almacenamiento, es posible que el sistema de archivos de la VM quede en un estado inconsistente. Reiniciar la VM (a menudo tras desmontar y volver a montar el volumen en el hipervisor) permite que la máquina realice un chequeo de integridad (como fsck en Linux o chkdsk en Windows) al arrancar.3. Congelamiento tras un evento de "Snapshot"El escenario: Creaste o eliminaste una instantánea (snapshot) y, al momento de consolidar los discos, la VM se congeló por completo.Por qué es necesario: Las tareas de consolidación de discos pueden bloquear el hilo principal de ejecución de la VM en el hipervisor. Un reinicio forzado libera el bloqueo de lectura/escritura y completa la operación.4. Bloqueo total de recursos (CPU o Memoria al 100%)El escenario: Un proceso descontrolado dentro de la VM ha saturado la CPU al 100% o consumido toda la memoria RAM, impidiendo que el agente de virtualización (como VMware Tools o QEMU Guest Agent) procese comandos básicos.Por qué es necesario: No puedes ejecutar comandos de apagado ordenado a través de la API del hipervisor. Un hard reboot es la única forma de liberar el hardware asignado.⚠️ Buenas Prácticas y PrecaucionesAgotar opciones: Siempre intenta primero un reinicio suave (Graceful Restart o ACPI Power Off). Si el hipervisor lo permite, esta acción envía una señal de apagado ordenada (como presionar el botón físico de encendido) para que el sistema cierre los servicios correctamente y evite corrupción de datos.Evitar corrupción: Un reinicio duro es el equivalente a desconectar físicamente un servidor. Solo debe usarse cuando no hay otra alternativa.Revisar logs: Antes de reiniciar, revisa siempre los registros (logs) del hipervisor (como VMware vSphere, Proxmox o Hyper-V) para identificar la causa raíz de la caída original.
+
+Student imput: Entiendo que es buena práctica reiniciar cuando el sistema operativo no levanta o tiene errores irrecuperables que necesitan un refresco de las conexiones y programas internos... si el CPU o la memoria están corriendo al 100%, en general si llos procesos internos están saturados
+
+Pregunta 2 (Tengo un server en Nginx en 192.168.1.10 para 3 sitios en el puerto 80: portafolio.local, api.local y admin.local... 
+3 entradas en /etc/hosts
+ 
+Config en Nginx cib 3 bloques de server para los sitios
+	Index
+	Server_Name
+	AdminLocal
+Qué pasa si se olvida poner server_name
+	Por defecto el bloque queda sin filtro, tonc no lo encuentra... peeero por defecto Nginx toma el dominio por defecto
+	
+	
+POINT! take a look at "SolidGS and SveltGS" and "Node.js"
+
+Pregunta 3 (La maquina me manda el error "Addres already in use :::8080")
+
+Que es el error a nicel de OS? el puerto está reservado ya
+Que comando se usa para ver qué proceso está en 8080? lsof -i 8080
+Cómo se termina sin reiniciar? con el comando "kill -9"
+Cómo se previene a futuro usando Node.js? con pm2 el proceso se limpia al apagar la máquina, esto hace que a futuro no se escriban 2 procesos en el mismo puerto
+
+Pregunta 4 (tenemos una app de chat Websocket(procesos con ping de finalización) con 50k usuarios con 2 servidores físicos ... Apache o Nginx?
+Cual server es más recomendable?
+Como afecta Apache Prefork a la ram con 50k conexiones simultáneas?
+Qué directiva/config especifica de Nginx necesitarían para soportar WebSockets?
+
+AI: 
+
+Veredicto y Recomendaciones:Para una aplicación de chat con 50,000 usuarios y conexiones persistentes (WebSockets), NGINX es rotundamente superior y más recomendable que Apache.Aquí tienes el desglose técnico de por qué y cómo configurarlo:1. ¿Cómo afecta Apache Prefork a la RAM con 50k conexiones simultáneas?Provocaría un colapso total del servidor por falta de memoria RAM.Arquitectura: El módulo Prefork de Apache es multiproceso y crea un proceso hijo por cada conexión.Consumo de memoria: En promedio, cada proceso de Apache en memoria (junto con su intérprete de PHP o entorno) consume entre \(25 \text{ MB}\) y \(50 \text{ MB}\).El cálculo: Para soportar 50k conexiones simultáneas, Apache necesitaría 50,000 procesos activos.\(50,000\times 35\text{\ MB}\approx 1,750,000\text{\ MB\ (1.75\ TB\ de\ RAM)}\)Consecuencia: Como no dispones de esa RAM en dos servidores físicos, el sistema operativo empezará a paginar en el disco duro (Swap), los tiempos de respuesta se dispararán y el servidor dejará de responder.2. ¿Por qué NGINX es la mejor opción?NGINX utiliza una arquitectura asíncrona basada en eventos. Puede manejar decenas de miles de conexiones concurrentes en un solo hilo utilizando una cantidad de RAM minúscula (aprox. \(2.5 \text{ KB}\) por conexión inactiva). Esto permite mantener abiertas las 50k conexiones sin consumir los recursos físicos de tu infraestructura.3. Configuración específica en NGINX para WebSocketsPara que NGINX actúe como proxy inverso y soporte WebSockets (que requieren actualización de protocolo y mantienen la conexión abierta), debes incluir las siguientes directivas en tu bloque server o location:nginx# Declarar un map fuera del bloque server para actualizar la cabecera Connection dinámicamente
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name ://tuservidor.com;
+
+    location /ws {
+        # Pasar al backend (NodeJS, Python, Go, etc.)
+        proxy_pass http://backend_websocket_ip:puerto;
+        
+        # Obligatorio usar HTTP/1.1 para WebSockets
+        proxy_http_version 1.1;
+
+        # Cabeceras requeridas para el protocolo WebSocket (Upgrade)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+
+        # Evitar que NGINX cierre la conexión si el chat está inactivo
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+
+        # Mantener el host original
+        proxy_set_header Host $host;
+    }
+}
+Use code with caution.Puedes verificar y ampliar esta información sobre el enrutamiento y tunelización leyendo la documentación oficial de NGINX sobre WebSocket Proxying.
+
+pregunta 4
+
+Bare Netal, VPS o Contenedor... para estos 3 casos, cual es mejor?
+a) Exchange de criptomonedas: Millones de transacciones por segundo. LAtencia critica, 99.999% uptime.
+b) API REST para app móvil: Tráfico variable. Picos de 10k req/s escalar rápido sin reconfiguraciones manuales.
+c) Plataforma SaaS milti-tenant: 20 Microservicios interdependientes. Equipos de desarollo independientes. Despliegues frecientes sin downtime.
+
+AI: 
+Para estos tres casos, la infraestructura ideal varía entre Bare Metal, Contenedor o VPS dependiendo de las necesidades de rendimiento, escalabilidad y gestión de cada arquitectura:a) Exchange de criptomonedas (Latencia crítica, 99.999% uptime)La mejor opción: Bare MetalPor qué: Al requerir millones de transacciones por segundo, no puedes permitirte el "ruido de vecino" ni la más mínima latencia que añade la capa de virtualización. Un servidor físico dedicado ofrece acceso exclusivo al hardware, máxima estabilidad, discos NVMe ultrarrápidos y redes de 10Gbps, cumpliendo con el extremo requerimiento de disponibilidad (\(99.999\%\)).b) API REST para app móvil (Tráfico variable, picos de 10k req/s)La mejor opción: Contenedores (orquestados con Kubernetes)Por qué: Los contenedores permiten la auto-escalabilidad horizontal automática casi instantánea para responder a picos de tráfico en tiempo real. Integrados con un balanceador de carga, permiten añadir réplicas del servicio en segundos sin reconfigurar manualmente nada cuando la demanda se dispara.c) Plataforma SaaS multi-tenant (20 Microservicios, despliegues sin downtime)La mejor opción: Contenedores (Docker + microservicios)Por qué: Es el ecosistema nativo para arquitecturas de microservicios. Permite que cada equipo despliegue o actualice su microservicio de forma aislada y continua mediante CI/CD sin afectar al resto del sistema, logrando cero tiempo de inactividad gracias a los despliegues "Rolling Update".
+
+pregunta 5
+
+Diferencias entre sitios y aplicaciones, donde los sitios son estáticos y las aplicaciones dinámicas.... pregruntan por cual de los 2 usar en varios ejemplos muy claros... #Facilito eran App(periodico), Sitio(currículo), App(google sheets).
+
+
+Pregunta 6 (CSR(clien side), SSR(server side) y SSG(static)) similar al anterior, hay que esocger cual en las opciones.
+
+a) Blog de recetas personales, SEO es importante, actualiza 1-2 veces a la semana, sin login (SSG)
+b) Panel de pedidos en linea, datos cambian rápidamente, no importa el SEO (SSR)
+c) Portafolio universitario, estático (SSG)
+
+JWT = Jason Web Token
+
+Pregunta 7 (trmino un proyecto Node.js y tenemos un server VPS con Ubuntu, se accede via SSH... el build re react genera /dis y el servidor express corre en pierto 3000... 
+
+a) Usa FTP, SFTP o SCP para transderir archivos? cual comando se usa para transferir la carpeta /dist al server?
+	Se utiliza el protocolo SCP (o SFTP para sesiones interactivas), ya que ambos operan sobre el mismo puerto cifrado de SSH (puerto 22 por defecto). 
+	scp -r /ruta/local/de/tu/proyecto/dist usuario_vps@ip_del_servidor:/ruta/remota/donde/guardar/dist
+b) La app necesita variables en producciín DB_URL, JWT_SECRET, PORT... Como las configuramos en el VPS SIN escribirlas en el codigo fuente?
+	Mediante el script de inicio (PM2): Si estás usando PM2 para mantener tu servidor Express corriendo en segundo plano, puedes crear un archivo llamado ecosystem.config.js en tu servidor y definir las variables ahí:javascriptmodule.exports = {
+  apps : [{
+    name   : "mi-api",
+    script : "./app.js",
+    env: {
+      NODE_ENV: "production",
+      PORT: 3000,
+      DB_URL: "mongodb+srv://...",
+      JWT_SECRET: "tu-secreto-seguro"
+    }
+  }]
+}
+
+Variables de entorno del sistema: Puedes exportarlas temporalmente en la terminal o agregarlas permanentemente al archivo ~/.bashrc de tu usuario en Ubuntu.bashexport DB_URL="tu_url_de_base_de_datos"
+export JWT_SECRET="tu_secreto"
+
+c) Un colega sugiere subir el .env.. wtf?... 3 razones concretas para rechazar esto
+
+Riesgo de exposición pública: Si tu aplicación Express sirve el build de React desde una carpeta pública (ej. app.use(express.static('dist'))), un error en la configuración del servidor podría hacer que el archivo .env sea accesible públicamente a través del navegador web, revelando todas tus credenciales.Seguridad en repositorios compartidos: Si el código en el servidor se despliega mediante un repositorio de Git, subir el .env (si no está en el .gitignore) significa que el archivo queda guardado en el historial de confirmaciones de tu proyecto, accesible para cualquiera con acceso al repositorio.Inmutabilidad y escalabilidad: Las variables de entorno sirven para desacoplar el entorno de la aplicación. Al escribir valores específicos para producción directamente en un archivo del servidor, pierdes la flexibilidad de gestionar las configuraciones de manera centralizada en la infraestructura.
+
+Pregunta 8 (encutra el error)
+
+a) fetch ("https://api.miproyecto.com/datos", { mode: "no-cors" }),then(r => r.json())
+b) 
