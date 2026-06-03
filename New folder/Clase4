@@ -1,0 +1,352 @@
+VCS = Version Control System
+Git LFS = Git Large File Storage
+JWT = Jason Web Token
+Errores de cliente 400
+Errores de Servidor 500
+NPM = Node Package Manager
+PR = Pull Request
+NPM = Node Package Manager
+YARN = Yet another resource negotiator
+Arquitectura exagonal = alta carga de usuarios, bajo acomplamiento... Alta coheción, bajo acoplameiento... usado con DDD(Domain-Driven Design) permite tener puertos y adapters.. no va a tener dependencias... arquitectura limpia  !!!!!!
+DTO = Data Transfer Object (comportamiento)
+
+
+
+
+3 estados de Git 
+	Working Directory (local)
+	Staging Area (index, lo que esta preparado para le proximo commit)
+	Repository (.git/ La base de datos con zlib. los Blobs)
+
+Metadata = Abstraccion de datos
+
+Preguntas importantes: 
+	Que frameworks de desarrollo estan en auge?
+
+Basados en la convención Angular:
+
+build: Cambios en la configuración de build o herramientas externas.
+ci: Cambios en la integración continua.
+docs: Documentación solamente.
+style: Formato, espacios, puntos y coma, etc. (sin cambios en lógica).
+refactor: Refactorización sin cambio de funcionalidad.
+perf: Mejoras de rendimiento.
+test: Agrega o corrige tests.
+chore: Tareas menores sin impacto funcional (por ejemplo, actualización de dependencias).
+revert: Reversión de un commit anterior.
+
+fix: un commit de tipo fix corrige un error en la base del código (se correlaciona con PATCH en el Versionado Semántico).
+feat: un commit de tipo feat introduce una nueva funcionalidad en la base del código (se correlaciona con MINOR en el Versionado Semántico).
+BREAKING CHANGE: un commit que contiene la nota al pie BREAKING CHANGE:, o que agrega un ! después del tipo/ámbito, introduce un cambio de ruptura de API (se correlaciona con MAJOR en el Versionado Semántico). Un BREAKING CHANGE puede ser parte de commits de cualquier tipo.
+
+
+Pregunta 1: Cuales commits violan Conventional Commits?
+			Cuales Commits representan un problema de seguridad y què se debe configurar antes del primer commit?
+			EN què estado Git esta un archivo recièn creado sin git add y uno con git add pero sin commit?
+ad7s6ad7s Arreglo del login
+192381923 cambios de Bryan esta semana
+1928dasd8 feature nueva para el cliente
+da8sd7a8s node_modules/express/index.js
+asdajl797 .env
+
+# -gitignore actual del proyecto:
+#.log
+package-lock,json
+#(node_modules/ y .env NO están listados)
+
+Student Imput:
+
+
+lo primero sería que los commits no tienen los prefijos como (refactor, fix, feat, docs... etc)
+
+.env contiene contraseñas, tokens, API keys y credenciales de base de datos, por lo tanto nunca debería subirse al repositorio.
+
+node_modules/ hace el repositorio enorme, sube dependencias innecesarias y puede incluir archivos vulnerables o modificados
+
+El gitignore actual tiene problemas, tiene un archivo comentado y no tiene añadidos los archivos .env y node_modules... 
+
+Antes de añadir un archivo a Git, o sea cuando está recién creado, se sostiene que está en formato "untracked" Gito no tiene visión de esta archivo, está únicamente en local... cuando está add pero no commited se considera Staged, o "listo para ser subido al próximo commit"
+
+Taller de SSH para ponerme al día...
+
+Pregunta 2
+
+A) Cual comando es correcto para descargar cambios sin modificar la rama local?
+
+Descarfar sin tocar la rama local, git fetch origin
+
+B) Compañero sube un mensaje a Slack, "empujé los cambios del mídulo de pagos, jale y revise", hay commits locales que no he subido
+Después de insteccionar los cambios, querés integrados. Qué secuencia de comandos usaría para hacer un historial limpio y lineal?
+
+git status
+git fetch origin
+git rebase origin/main
+# resolver conflictos si existen
+git add .
+git rebase --continue
+git push origin main
+
+C) El push es "rejected-non-fast-forward" cual es el flujo correcto para resolverlo?
+
+El remoto tiene commits que no tienes, nunca usar git push --forceen ramas compartidas... Fljo correcto:
+fetch origin
+rebase origin /main #Reorganiza la historia
+push origin main #ahora que está correcto
+
+Una Branch es un archivo de 41 bytes de un commit, un marcador, un puntero a un commit
+
+
+Pregunta 3
+
+Branching, Merge y Pull Request -- Escenario de equipo
+
+$ git log --oneline -- graph --all
+* 12kj feat(profile): add avatar upload
+* ads7 feat(profile): create profile <- HEAD de feature/user -profile
+* ds98 feat(nav): add responsive menu
+|* ds7t feat(dark-mode): toggle button <- origin/features/dark-mode (compañero)
+|* 8s7d feat(dark-mode): ddark theme variables
+|/
+* s6ds feat(home): initial landing page <- main actual
+
+1. qué tipo de merge ocurrira al integrar feature/user-profile en main?... fast o 3 way? 3 way porque hay diferentes Ids
+2. el compa tiene cambios en origin/feature/dark-mode. qué comandos usan para revisar los cambios sin integrarlos? 
+git fetch origin
+git log origin/feature/dark-mode --oneline}dit diff main origin/featurea/dark-mode
+git checkout II
+3. describe los 4 elementos escenciales para tener la descripcion del pull request profecional?
+
+Por qué el lock file siempre va en Git?... porque permite actualizaciones menores y parches sin romper compatibilidad
+
+Pregunta 4 
+
+{
+	"dependencies":{
+		"react": "18.0.0",
+		"vite": "5.0.0",
+		"eslint": "9.0.0",
+		"vitest": "2.0.0",
+		"axios": "1.7.0",
+		"typescript": "5.5.0",
+
+	},
+	"scripts":{
+	"start": "node server.js",
+	"build": "webpack --config webpack.config.js"
+	}
+}
+
+# .gitignore del proyecto:
+#.log
+package-lock.json
+node_modules/
+
+
+1) cuales paquetes están mal clasificados en dependenciaas cuando deberian ser devDependencies?
+2) qué problema y consecuencias pasa por el .gitignore?
+3) hay scripts inconsistentes con las herramientas declaradas... cuales son y cómmo se corrigen?
+
+
+AI imput:
+1) ¿Cuáles paquetes están mal clasificados y deberían ser devDependencies?
+
+Actualmente todos están dentro de:
+
+"dependencies"
+
+Pero varios son herramientas de desarrollo y no dependencias de producción.
+
+Deberían estar en devDependencies
+vite
+eslint
+vitest
+typescript
+¿Por qué?
+
+Porque se usan para:
+
+desarrollo
+testing
+compilación
+linting
+build tools
+
+y NO son necesarias cuando la app ya está corriendo en producción.
+
+Explicación paquete por paquete
+vite
+
+Bundler y servidor de desarrollo.
+
+Solo se usa para desarrollar y construir el proyecto.
+
+eslint
+
+Herramienta de análisis de código.
+
+Solo se usa durante desarrollo.
+
+vitest
+
+Framework de testing.
+
+No se necesita en producción.
+
+typescript
+
+Compila TypeScript a JavaScript.
+
+En producción normalmente ya existe el JS compilado.
+
+Dependencias que sí están bien
+react
+axios
+
+Porque son utilizadas directamente por la aplicación en runtime.
+
+2) ¿Qué problema y consecuencias hay con el .gitignore?
+
+.gitignore actual:
+
+#.log
+package-lock.json
+node_modules/
+Problema principal
+#.log
+
+Está comentado.
+
+Eso significa que Git NO ignorará archivos .log.
+
+Consecuencias
+
+Se podrían subir:
+
+logs de errores
+logs de debug
+información sensible
+archivos temporales enormes
+
+Ejemplos:
+
+error.log
+server.log
+debug.log
+Problemas adicionales
+package-lock.json
+
+Está siendo ignorado.
+
+Eso normalmente es una mala práctica en proyectos Node.
+
+¿Por qué?
+
+Porque el package-lock.json:
+
+fija versiones exactas
+garantiza instalaciones idénticas
+evita “en mi máquina funciona”
+Consecuencias de ignorarlo
+
+Cada desarrollador podría instalar versiones distintas.
+
+Eso puede provocar:
+
+bugs inconsistentes
+builds diferentes
+conflictos de dependencias
+errores difíciles de reproducir
+.gitignore correcto
+*.log
+node_modules/
+
+y normalmente:
+
+NO ignorar package-lock.json
+3) ¿Qué scripts son inconsistentes con las herramientas declaradas?
+
+Scripts:
+
+"scripts":{
+  "start": "node server.js",
+  "build": "webpack --config webpack.config.js"
+}
+Problema 1: uso de webpack sin tener webpack instalado
+
+El script:
+
+"build": "webpack --config webpack.config.js"
+
+usa Webpack.
+
+Pero en dependencias NO existe:
+
+webpack
+webpack-cli
+Consecuencia
+
+El comando fallará:
+
+webpack: command not found
+Corrección
+
+Hay dos opciones:
+
+Opción A: usar Vite correctamente
+
+Ya que el proyecto tiene vite, lo correcto sería:
+
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview"
+}
+Opción B: realmente usar webpack
+
+Entonces habría que instalar:
+
+npm install -D webpack webpack-cli
+
+Pero como ya existe Vite, eso sería redundante.
+
+Problema 2: start posiblemente inconsistente
+"start": "node server.js"
+
+No necesariamente está mal, pero:
+
+parece un proyecto frontend con React + Vite
+Vite normalmente usa:
+vite
+
+y no node server.js.
+
+Corrección esperada para Vite
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview"
+}
+Estructura correcta aproximada
+{
+  "dependencies": {
+    "react": "18.0.0",
+    "axios": "1.7.0"
+  },
+  "devDependencies": {
+    "vite": "5.0.0",
+    "eslint": "9.0.0",
+    "vitest": "2.0.0",
+    "typescript": "5.5.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
+
+
+Stud imput: 
+Json no debe estar nunca en el .gitignore, el CI puede romper por una actualización menorque nadie notó.
+Los scripts usaban webpack y node server .js pero el proyecto declara vite. el bundler nadeie lo actializó de los scripts, en ambos casos npm run build rompería inmediatamente.
+

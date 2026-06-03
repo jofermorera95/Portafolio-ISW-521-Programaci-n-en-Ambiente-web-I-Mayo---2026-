@@ -1,0 +1,154 @@
+Quiz 1 23 Jul
+Quiz 2 6 Ag
+
+Gitflow: Metodología
+
+Crawler = Lector de pantalla
+
+Main->Hotfix->release->Develop->Feature
+
+Git -prune(elimina ramas en local que no existen en repo)
+
+
+1- Motor de renderizado y DOM
+
+	DOM (Document Object Model o Modelo de Objetos del Documento) es una interfaz de programación que representa la estructura de una página web como un árbol de objetos en memoria
+
+	Parsing - El navegador lee un archivo HTML
+	UTF-8 Formato de transformación unicode de 8 bits (convierte lenguaje a bits y re escribe) en HTML necesita la etiqueta [Meta] para agregar cosas como tildes o ñ...
+
+	CSSOM - CSS object model - es un conjunto de APIs y una estructura en forma de arbol que contiene todos los estilos que el navegador ha inicializado y procesado en un sitio (es el mediador cuando uno modifica algo en js, es un API que es el que conecta)
+
+	-----------------------------------------------------------------------------------------------------------------------------------
+
+	<!DOCTIYPE html> necesario para estandarizar
+
+	Estructura raíz 
+	<html>
+		<html lang="es>
+	<head>
+		<meta charset>
+	<body>
+
+2- HTML Semántico y Outline
+
+	Usar la etiqueta que DESCRIBE el contenido! para ver bien el arbol de etiquetas
+	Evitamos usar <div> para todo
+
+3- Elementos de bloque vs línea
+
+	Block level vs inline elements
+		Block ocupan todo el ancho del contenedor
+	Inline
+		solo el espacio del contenido dentro del bloque
+
+	Agrupación(listas)
+		<ol> lista ordenada
+		<ul> desordenada
+		<dl> metadatos, glosarios, descripción
+	todo lo que está dentro de las etiquetas va dentro de un <li>
+
+Actividad 1: identificar elementos (Bloque o en linea?, semantico o presentacional?, en qué situacion real se usa?)
+
+<blockquote>	(bloque semántico, muestra citas largas)
+<span>			(en línea, no semántico, aplica estilos)
+<strong>		(en línea semántico, resalta texto, negrita, indica IMPORTANCIA)
+<article>		(bloque semántico, una noticia o detalle indiferente de contexto)
+<b>				(en línea presentacional, muestra texto en negrita sin indicar importancia)
+<time>			(en línea semántico, representa fechas y horas)
+<ul>			(bloque semántico, crea listas NO ordenadas)
+<mark>			(en línea semántico, remarka texto relevante)
+<code>			(en línea semántico, muestra código fuente dentro de un texto)
+<section>		(bloque semántico, agrupa contenido relacionado)
+
+4- Formularios nativos
+
+	POST envía datos
+	DELETE elimina
+	PUT actualiza
+
+	datalist = enseña data
+	select = delimita opciones
+
+	tr = filas
+	td = columnas
+	colspan = para unir columnas
+	rowspan = para unir filas
+
+	<tr>
+		<th>Hora</th>
+		<th>Lunes</th>
+		<th>Master</th>
+		<th>Miercoles</th>
+	</tr>
+
+	<tr>
+		<td>9:00</td>
+		<td coldspan = "3">Receso</td>
+	</tr>
+
+^[1-9][0][1-9]{3}[0][1-9]{3}$
+
+5- Tabla de datos
+
+	SRC = ruta!
+
+Actividad 2
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Galería Multimedia del Curso</title>
+</head>
+<body>
+
+    <h1>Galería Multimedia del Curso</h1>
+
+    <section>
+        <h2>Imagen Principal</h2>
+
+        <picture>
+            <source srcset="imagen.webp" type="image/webp">
+            <source srcset="imagen.jpg" type="image/jpeg">
+            <img src="imagen.jpg"
+                 alt="Estudiantes participando en una clase virtual"
+                 title="Imagen principal del curso">
+        </picture>
+    </section>
+
+    <section>
+        <h2>Video de la Clase</h2>
+
+        <video controls poster="portada-video.jpg" title="Video introductorio">
+            <source src="clase.mp4" type="video/mp4">
+            <source src="clase.webm" type="video/webm">
+            Tu navegador no soporta video.
+        </video>
+    </section>
+
+    <section>
+        <h2>Podcast del Curso</h2>
+
+        <audio controls title="Podcast educativo">
+            <source src="podcast.mp3" type="audio/mpeg">
+            Tu navegador no soporta audio.
+        </audio>
+    </section>
+
+    <section>
+        <h2>Ubicación del Centro Educativo</h2>
+
+        <iframe
+            src="https://www.google.com/maps/embed?pb="
+            title="Mapa de Google"
+            width="600"
+            height="450"
+            sandbox="allow-scripts allow-same-origin allow-popups">
+        </iframe>
+    </section>
+
+</body>
+</html>
+
+6- Multimedia nativa
