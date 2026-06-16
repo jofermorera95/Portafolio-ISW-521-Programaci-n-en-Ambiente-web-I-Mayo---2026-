@@ -1,0 +1,170 @@
+Actividad 1: Lo mejor siempre es inspeccionar el còdigo de la pàgina y revisar si se encuentra la etiqueta Viewoport, esto ayuda a configurar el cambio de view para el dispositivo
+
+Adaptativo vs responsivo
+
+Adapt: Varios layouts - Detecta el ancho y carga el màs cercano
+Responsivo: Un solo layoutsgrillas = grids ... rem = 16px ... fr = Fracciona ... vh/vw viewport height/widh ... vw = %
+
+QUe es Clamp() min, preferido, max ... devuelve el acotado entre un piso y un techo.
+
+Actividad 3: 
+
+The maximum value of 3rem is picked over the preferred size when the screen width reaches 1000px or wider (assuming the default browser root font size of 1rem = 16px).At your current screen width of 800px, the preferred size evaluates to 2.5rem (40px), meaning the maximum value hasn't been triggered yet.Step-by-Step BreakdownTo find exactly when the maximum cap takes over, you solve for when the preferred value equals the maximum value:\(4\text{vw}+0.5\text{rem}=3\text{rem}\)Subtract the rem offset:\(4\text{vw}=2.5\text{rem}\)Convert rem to pixels (assuming 1rem = 16px):\(2.5\times 16\text{px}=40\text{px}\)Solve for 100% viewport width (\(100\text{vw}\)):If \(4\text{vw} = 40\text{px}\), then \(1\text{vw} = 10\text{px}\).\(100\text{vw}=1000\text{px}\)What Happens at 800px Width?At your specific screen size of 800px, the CSS clamp() function chooses the preferred middle value because it falls safely within the boundaries:Minimum limit: 1.5rem (24px)Preferred calculation: \(4\% \text{ of } 800\text{px} \ (32\text{px}) + 0.5\text{rem} \ (8\text{px}) = 40\text{px}\) (2.5rem)Maximum limit: 3rem (48px)
+
+
+https://www.google.com/search?q=Given+a+screen+of+800px+in+width%2C+with+a+clamp%281.5rem%2C+4vw+%2B+0.5rem%2C+3%29%3B+and+an+h1+font+size...+when+is+the+3rem+picked+over+the+prefered+size%3F&newwindow=1&sca_esv=ec2bff8bd1e2ef21&rlz=1C1CHBD_esCR1033CR1033&biw=1366&bih=679&sxsrf=ANbL-n6r4n95xXlNRkQnKTkNEM3DGChH7w%3A1781628598296&ei=tn4xaprWEZy6ptQP2LiOiQg&ved=0ahUKEwiaieTdm4yVAxUcnYkEHVicI4EQ4dUDCBI&uact=5&oq=Given+a+screen+of+800px+in+width%2C+with+a+clamp%281.5rem%2C+4vw+%2B+0.5rem%2C+3%29%3B+and+an+h1+font+size...+when+is+the+3rem+picked+over+the+prefered+size%3F&gs_lp=Egxnd3Mtd2l6LXNlcnAijwFHaXZlbiBhIHNjcmVlbiBvZiA4MDBweCBpbiB3aWR0aCwgd2l0aCBhIGNsYW1wKDEuNXJlbSwgNHZ3ICsgMC41cmVtLCAzKTsgYW5kIGFuIGgxIGZvbnQgc2l6ZS4uLiB3aGVuIGlzIHRoZSAzcmVtIHBpY2tlZCBvdmVyIHRoZSBwcmVmZXJlZCBzaXplP0gAUABYAHAAeAGQAQCYAQCgAQCqAQC4AQPIAQD4AQGYAgCgAgCYAwCSBwCgBwCyBwC4BwDCBwDIBwCACAE&sclient=gws-wiz-serp
+
+
+Actividad 5.
+
+Media query = bloque de estilos que qplica cuando el browser cumple ciertas caracterìsticas. 
+	Recoje datos que el usuario ya tiene cargados en el browser y los implementa en la pàgina.
+
+Actividad 4: 
+	
+	A: llama el tamaño de la pantalla, llama la clase, galeria
+	B: tira aside y enseña block
+	C: Si hay print enseña, si no oculta
+
+Progresiòn, empieza desde lapantalla màs pequña con el @Media y empieza a agregar pantallas grandes
+
+
+Mobile first, se pienza en lo más necesario, teléfonos móbiles, se crea la versión para la pantalla ma´s pequeña y se avanza desde ahí
+
+
+La idea de Mobile-First es que el CSS base sea para móviles y luego se agreguen mejoras con @media (min-width) para pantallas más grandes.
+
+CSS original (Desktop-First)
+.productos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+
+@media (max-width: 1023px) {
+    .productos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 599px) {
+    .productos {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+CSS refactorizado a Mobile-First
+.productos {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 600px) {
+    .productos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .productos {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 32px;
+    }
+}
+¿Qué queda como base?
+
+Lo que aplicaba a móviles:
+
+grid-template-columns: 1fr;
+gap: 16px;
+
+además de:
+
+display: grid;
+¿Qué se mueve a los @media (min-width)?
+
+Para tablets (600px en adelante):
+
+grid-template-columns: repeat(2, 1fr);
+
+Para escritorio (1024px en adelante):
+
+grid-template-columns: repeat(4, 1fr);
+gap: 32px;
+Regla para convertir Desktop-First → Mobile-First
+Toma las reglas del @media más pequeño (max-width más bajo) y conviértelas en la base.
+Cambia max-width por min-width.
+Ve agregando los cambios conforme aumenta el tamaño de pantalla.
+
+En este ejemplo:
+
+Móvil (<600px): 1 columna, gap 16px.
+Tablet (600px–1023px): 2 columnas.
+Desktop (1024px+): 4 columnas, gap 32px.
+
+El código mostrado es:
+
+.banner-promo {
+    width: 1400px;
+    background-image: url('promo-4k.jpg');
+}
+
+@media (max-width: 1200px) {
+    .banner-promo { width: 1000px; }
+}
+
+@media (max-width: 992px) {
+    .banner-promo { width: 750px; }
+}
+
+@media (max-width: 768px) {
+    .banner-promo { width: 580px; }
+}
+
+@media (max-width: 576px) {
+    .banner-promo { display: none; }
+}
+1. Olor de rendimiento 🚀
+background-image: url('promo-4k.jpg');
+
+Se está cargando una imagen 4K para todos los dispositivos, incluso móviles.
+
+Problema: consume más ancho de banda, memoria y tiempo de carga de lo necesario.
+
+2. Olor de mantenimiento 🔧
+width: 1400px;
+width: 1000px;
+width: 750px;
+width: 580px;
+
+Hay muchos anchos fijos repetidos en distintos breakpoints.
+
+Problema: si mañana cambian los diseños, hay que modificar varias reglas.
+
+Sería más mantenible usar:
+
+width: 100%;
+max-width: 1400px;
+
+o un enfoque más flexible con Grid/Flexbox.
+
+3. Olor conceptual 📱
+@media (max-width: ...)
+
+Todo el diseño está hecho desktop-first, cuando el tema es Mobile-First.
+
+Además:
+
+@media (max-width: 576px) {
+    .banner-promo { display: none; }
+}
+
+El elemento se construye para escritorio y luego se elimina en móvil.
+
+Problema conceptual: se está diseñando pensando primero en pantallas grandes y luego "quitando cosas" para móviles, en lugar de comenzar con la experiencia móvil y mejorarla progresivamente.
+
+Respuesta corta para entregar
+Rendimiento: se carga una imagen promo-4k.jpg para todos los dispositivos.
+Mantenimiento: múltiples anchos fijos (1400px, 1000px, 750px, 580px) dificultan cambios futuros.
+Conceptual: enfoque desktop-first con max-width y ocultación del banner en móviles (display:none) en lugar de usar Mobile-First.
